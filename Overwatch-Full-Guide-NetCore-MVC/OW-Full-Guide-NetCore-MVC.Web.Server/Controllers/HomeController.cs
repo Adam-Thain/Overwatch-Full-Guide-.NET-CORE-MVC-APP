@@ -1,12 +1,17 @@
 ﻿using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.WindowsAzure.Storage;
 using System.Linq;
 using System.Threading.Tasks;
 
 namespace OW_Full_Guide_NetCore_MVC.Web.Server.Controllers
 {
+    /// <summary>
+    /// Manages the standard web server pages
+    /// </summary>
     public class HomeController : Controller
     {
         #region Protected Members
@@ -124,7 +129,7 @@ namespace OW_Full_Guide_NetCore_MVC.Web.Server.Controllers
         }
 
         /// <summary>
-        /// An auto-login page for test
+        /// An auto-login page for testing
         /// </summary>
         /// <param name="returnUrl"> The URL to return if successfully logged in </param>
         /// <returns></returns>

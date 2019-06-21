@@ -7,6 +7,5 @@ namespace OW_Full_Guide_NetCore_MVC.Web.Server
     /// </summary>
     public class ApplicationUser:IdentityUser
     {
-
     }
 }

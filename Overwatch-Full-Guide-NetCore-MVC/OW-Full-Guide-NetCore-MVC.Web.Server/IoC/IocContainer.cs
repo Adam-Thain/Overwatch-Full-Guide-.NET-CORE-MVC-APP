@@ -1,5 +1,5 @@
-﻿using Microsoft.Extensions.DependencyInjection;
-using System;
+﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace OW_Full_Guide_NetCore_MVC.Web.Server
 {
@@ -23,5 +23,10 @@ namespace OW_Full_Guide_NetCore_MVC.Web.Server
         /// The service provider for this application
         /// </summary>
         public static ServiceProvider Provider { get; set; }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public static IConfiguration Configuration { get; set; }
     }
 }

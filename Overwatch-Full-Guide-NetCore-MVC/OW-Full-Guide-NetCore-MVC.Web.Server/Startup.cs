@@ -1,22 +1,29 @@
 ﻿using System;
+using System.Text;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.IdentityModel.Tokens;
 
 namespace OW_Full_Guide_NetCore_MVC.Web.Server
 {
+    /// <summary>
+    /// 
+    /// </summary>
     public class Startup
     {
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="configuration"></param>
         public Startup(IConfiguration configuration)
         {
-            Configuration = configuration;
+            //
+            IoCContainer.Configuration = configuration;
         }
-
-        public IConfiguration Configuration { get; }
 
         /// <summary>
         /// This method gets called by the runtime. Use this method to add services to the container.
@@ -27,7 +34,7 @@ namespace OW_Full_Guide_NetCore_MVC.Web.Server
             // Add ApplicationDbContext to DI
             // NOTE: The default connection is found in appsettings.json
             services.AddDbContext<ApplicationDbContext>(options =>
-                options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
+                options.UseSqlServer(IoCContainer.Configuration.GetConnectionString("DefaultConnection")));
 
             // AddIdentity adds cookie based authentication
             // Adds scoped Classes for things like UserManager, SigninManager, PasswordHashers etc..
@@ -44,8 +51,29 @@ namespace OW_Full_Guide_NetCore_MVC.Web.Server
             // forget password links, phone number verifactions codes etc...
             .AddDefaultTokenProviders();
 
-            // TODO: Change login URL
-            // TODO: Change cookie timeout
+            // Add JWT Authentication for api clients
+            services.AddAuthentication().
+                AddJwtBearer(options => 
+                {
+                    // Set Validation Parameters
+                    options.TokenValidationParameters = new TokenValidationParameters
+                    {
+
+                        ValidateIssuer = true,
+
+                        ValidateAudience = true,
+
+                        ValidateLifetime = true,
+
+                        ValidateIssuerSigningKey = true,
+
+                        ValidIssuer = IoCContainer.Configuration["Jwt:Issuer"],
+
+                        ValidAudience = IoCContainer.Configuration["Jwt:Audience"],
+
+                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(IoCContainer.Configuration["Jwt:SecretKey"])),
+                    };
+                });
 
             // Change password policy
             services.Configure<IdentityOptions>(options =>
@@ -68,6 +96,7 @@ namespace OW_Full_Guide_NetCore_MVC.Web.Server
                 options.ExpireTimeSpan = TimeSpan.FromSeconds(15);
             });
 
+            // User MVC style website
             services.AddMvc();
         }
 
@@ -84,15 +113,20 @@ namespace OW_Full_Guide_NetCore_MVC.Web.Server
             // Setup Identity
             app.UseAuthentication();
 
+            // If in Development
+            // Elese Just show Generic Error Code
             if (env.IsDevelopment())
                 app.UseDeveloperExceptionPage();
             else
                 app.UseExceptionHandler("/Home/Error");
 
+            // Serve Static Files
             app.UseStaticFiles();
 
+            // Setup MVC Routes
             app.UseMvc(routes =>
             {
+                // Default route of /controller/action/info
                 routes.MapRoute(
                     name: "default",
                     template: "{controller=Home}/{action=Index}/{moreInfo?}");
